@@ -34,7 +34,6 @@ Add these lines to the file and replace the placeholder:
 ```dotenv
 GEMINI_API_KEY=your_real_gemini_api_key
 CALENDLY_URL=https://calendly.com/your-team/your-event
-ADMIN_API_KEY=replace_with_a_long_random_secret
 CORS_ALLOWED_ORIGINS=http://localhost:5173
 ```
 
@@ -48,10 +47,7 @@ The backend loads `backend\.env` when its Gemini client module is imported.
 Those file values take precedence over existing Windows environment variables.
 Restart Uvicorn after changing `.env`.
 
-`ADMIN_API_KEY` is required to view saved leads and transcripts. Enter that key
-in the app's **Admin API key** field; it is held in session storage for the
-current browser tab. The API returns an error for lead-data requests until a
-key is configured. Set `CORS_ALLOWED_ORIGINS` to a comma-separated list of the
+Set `CORS_ALLOWED_ORIGINS` to a comma-separated list of the
 exact frontend origins you use (for example, `http://localhost:5173`).
 
 The API runs at `http://127.0.0.1:8000`. SQLite tables are initialized
@@ -83,8 +79,8 @@ The chat API can also be called directly:
 ```powershell
 $body = @{ session_id = "demo-1"; message = "I'm the founder and need a CRM this month." } | ConvertTo-Json
 Invoke-RestMethod -Uri http://127.0.0.1:8000/chat -Method Post -ContentType "application/json" -Body $body
-Invoke-RestMethod -Uri http://127.0.0.1:8000/leads -Headers @{ "X-Admin-Key" = "your_admin_api_key" }
-Invoke-RestMethod -Uri http://127.0.0.1:8000/leads/demo-1 -Headers @{ "X-Admin-Key" = "your_admin_api_key" }
+Invoke-RestMethod -Uri http://127.0.0.1:8000/leads
+Invoke-RestMethod -Uri http://127.0.0.1:8000/leads/demo-1
 ```
 
 If Gemini is unavailable, the API stays running and returns a fallback reply.

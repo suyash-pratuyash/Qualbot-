@@ -1,7 +1,7 @@
 import os
 from typing import Any
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -45,14 +45,6 @@ class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=4000, str_strip_whitespace=True)
 
 
-def require_admin(x_admin_key: str | None = Header(default=None)) -> None:
-    expected_key = os.getenv("ADMIN_API_KEY")
-    if not expected_key:
-        raise HTTPException(status_code=503, detail="Lead access is not configured")
-    if x_admin_key is None or x_admin_key != expected_key:
-        raise HTTPException(status_code=401, detail="A valid admin API key is required")
-
-
 @app.on_event("startup")
 def startup() -> None:
     init_db()
@@ -65,7 +57,6 @@ def health():
 
 @app.get("/leads")
 def leads(
-    _: None = Depends(require_admin),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> list[dict[str, Any]]:
@@ -73,7 +64,7 @@ def leads(
 
 
 @app.get("/leads/{session_id}")
-def lead_detail(session_id: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+def lead_detail(session_id: str) -> dict[str, Any]:
     lead = get_lead(session_id)
     if lead is None:
         raise HTTPException(status_code=404, detail="Lead not found")

@@ -2,69 +2,68 @@ import { useState } from "react";
 import ChatWidget from "./ChatWidget";
 import Dashboard from "./Dashboard";
 
+/**
+ * App Component
+ * Root component that manages the top-level tab navigation ("chat" vs "dashboard")
+ * and renders either ChatWidget (for prospects) or Dashboard (for sales team).
+ */
 export default function App() {
-  const [page, setPage] = useState("chat");
-  const [adminKey, setAdminKey] = useState(
-    () => sessionStorage.getItem("qualbot-admin-key") || "",
-  );
-
-  function updateAdminKey(value) {
-    setAdminKey(value);
-    if (value) sessionStorage.setItem("qualbot-admin-key", value);
-    else sessionStorage.removeItem("qualbot-admin-key");
-  }
+  // Navigation state: "chat" or "dashboard"
+  const [activeTab, setActiveTab] = useState("chat");
 
   return (
-    <main className="min-h-screen px-4 py-6 sm:px-8 sm:py-10">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-8 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
+      {/* Top Navigation Bar */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          {/* Logo and Subtitle */}
           <div>
-            <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600">
-              Conversational lead qualification
-            </p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              QualBot
-            </h1>
-            <p className="mt-2 max-w-xl text-sm text-slate-500">
-              Qualify prospects naturally, then keep every conversation and
-              lead score in one place.
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-xs">
+                Q
+              </div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                QualBot
+              </h1>
+              <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">
+                AI Lead Qualification
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Conversational BANT scoring powered by Google Gemini & FastAPI.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:items-end">
-            <label className="text-xs text-slate-500">
-              Admin API key
-              <input
-                className="text-input mt-1 w-full sm:w-64"
-                type="password"
-                autoComplete="off"
-                value={adminKey}
-                onChange={(event) => updateAdminKey(event.target.value)}
-                placeholder="Required to view saved leads"
-              />
-            </label>
-            <nav className="flex w-fit rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-              <button
-                className={`nav-button ${page === "chat" ? "nav-button-active" : ""}`}
-                onClick={() => setPage("chat")}
-              >
-                Chat
-              </button>
-              <button
-                className={`nav-button ${page === "dashboard" ? "nav-button-active" : ""}`}
-                onClick={() => setPage("dashboard")}
-              >
-                Lead dashboard
-              </button>
-            </nav>
-          </div>
-        </header>
 
-        {page === "chat" ? (
-          <ChatWidget adminKey={adminKey} />
-        ) : (
-          <Dashboard adminKey={adminKey} />
-        )}
-      </div>
-    </main>
+          {/* Tab Navigation Pill */}
+          <nav className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 w-fit">
+            <button
+              onClick={() => setActiveTab("chat")}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition ${
+                activeTab === "chat"
+                  ? "bg-white text-indigo-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              💬 Prospect Chat
+            </button>
+            <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition ${
+                activeTab === "dashboard"
+                  ? "bg-white text-indigo-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              📊 Lead Dashboard
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {activeTab === "chat" ? <ChatWidget /> : <Dashboard />}
+      </main>
+    </div>
   );
 }
